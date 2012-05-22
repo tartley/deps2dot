@@ -1,0 +1,55 @@
+deps2dot
+========
+
+Usage
+=====
+
+::
+
+    deps2dot [--help|-h] [--version]
+
+Where::
+
+    --help|-h           Show this help message and exit.
+    --version           Show version number and exit.
+
+Description
+===========
+
+Dependencies
+============
+
+Tested on OSX. Should work elsewhere.
+Tested on Python 3.2.
+Doesn't strictly depend upon, but uses the output of, snakefood.
+
+Install
+=======
+
+::
+
+    pip install deps2dot
+
+Known Problems
+==============
+
+Alternatives
+============
+
+Snakefood contains an executable 'sfood-graph' that performs the same
+transformation, but with different stylistic choices regarding the
+Thanks
+======
+
+Contact
+=======
+
+:Documentation & download:
+    http://pypi.python.org/pypi/deps2dot/
+
+:Souce code and issues:
+    https://bitbucket.org/tartley/deps2dot
+
+:Contact the author:
+    Jonathan Hartley, email: tartley at domain tartley.com, Twitter: @tartley.
+
