@@ -1,4 +1,8 @@
-*.py[oc]
+*.egg
 *.egg-info
+*.py[oc]
+build
+dist
+pip-log.txt
 tags
 
