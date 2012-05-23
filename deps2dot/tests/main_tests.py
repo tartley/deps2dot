@@ -11,8 +11,9 @@ class MainTest(TestCase):
     @patch('deps2dot.main.get_parser')
     @patch('deps2dot.main.parse_args')
     @patch('deps2dot.main.validate')
+    @patch('deps2dot.main.generate')
     def test_main(
-        self, mock_validate, mock_parse_args, mock_get_parser
+        self, mock_generate, mock_validate, mock_parse_args, mock_get_parser
     ):
 
         main()
@@ -28,5 +29,9 @@ class MainTest(TestCase):
         self.assertEqual(
             mock_validate.call_args,
             call(mock_parse_args.return_value)
+        )
+        self.assertEqual(
+            mock_generate.call_args,
+            call(mock_validate.return_value)
         )
 

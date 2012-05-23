@@ -7,11 +7,12 @@ NAME=deps2dot
 
 
 test:
-	python -m unittest discover $(NAME)/tests
+	python -m unittest discover -p '*tests.py' $(NAME)/tests/
+	python -m unittest discover -p '*tests.py' functional_tests/
 .PHONY: test
 
 pylint:
-	pylint *.py
+	pylint deps2dot
 .PHONY: pylint
 
 tags:

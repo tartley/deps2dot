@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from . import __doc__, __version__
+from . import __doc__ as DESCRIPTION, __version__
 
 
 EPILOG = '''
@@ -21,7 +21,7 @@ def _exit(message):
 
 def get_parser(name):
     parser = argparse.ArgumentParser(
-        description=__doc__,
+        description=DESCRIPTION,
         prog=name,
         epilog=EPILOG.format(__version__),
         formatter_class=argparse.RawDescriptionHelpFormatter,
