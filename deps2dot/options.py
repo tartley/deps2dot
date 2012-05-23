@@ -26,8 +26,10 @@ def get_parser(name):
         epilog=EPILOG.format(__version__),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument('input')
     parser.add_argument('--version',
         action='version', version='%(prog)s v' + __version__)
+
     return parser
 
 

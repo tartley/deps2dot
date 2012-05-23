@@ -19,6 +19,12 @@ class OptionsTest(TestCase):
     def test_get_parser_version(self):
         self.assert_get_parser_error(['--version'], 'v%s' % (__version__,))
 
+    def test_get_parser_filename(self):
+        parser = get_parser('prog')
+        options = parser.parse_args(['filename'])
+
+        self.assertEqual(options.input, 'filename')
+
 
     def test_validate(self):
         options = Mock()
