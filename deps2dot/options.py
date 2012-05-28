@@ -19,10 +19,10 @@ def _exit(message):
     sys.exit(2)
 
 
-def get_parser(name):
+def get_parser():
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
-        prog=name,
+        prog='deps2dot',
         epilog=EPILOG.format(__version__),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -36,7 +36,4 @@ def get_parser(name):
 def parse_args(parser, args):
     return parser.parse_args(args)
 
-
-def validate(options):
-    return options
 
