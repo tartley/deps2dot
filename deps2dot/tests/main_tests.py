@@ -40,7 +40,7 @@ class MainTest(TestCase):
             ]),
             {
                 'a': {
-                    'b.py': None,
+                    'a/b.py': None,
                 },
             }
         )
@@ -59,11 +59,11 @@ class MainTest(TestCase):
             {
                 'a.py': None,
                 'b': {
-                    'c.py': None,
-                    'd': {
-                        'e.py': None,
+                    'b/c.py': None,
+                    'b/d': {
+                        'b/d/e.py': None,
                     },
-                    'f.py': None,
+                    'b/f.py': None,
                 },
                 'g.py': None,
             }
