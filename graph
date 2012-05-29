@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+sfood --internal --ignore=migrations --ignore=tests --ignore=acceptancetests --ignore=test_utils $1 >$1.deps
+sfood-cluster -f clusters <$1.deps >$1.clustered-deps
+deps2dot $1.clustered-deps >$1.dot
+dot -Tsvg -Lg $1.dot >$1.svg
+open $1.svg
+
