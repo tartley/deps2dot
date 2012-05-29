@@ -1,4 +1,4 @@
-from random import randint
+from os.path import exists, isdir, isfile, join
 import sys
 
 from pydot import Cluster, Dot, Edge, Node
@@ -26,8 +26,15 @@ def get_tree_node(graph, name_parts):
 def is_node(end_root, end_name):
     return end_root == end_name == None
 
-def is_module(start_name):
-    return start_name.endswith('.py')
+def is_module(root, name):
+    fullname = join(root, name)
+    assert exists(fullname), fullname
+    if isfile(fullname):
+        return True
+    elif isdir(fullname):
+        return False
+    else:
+        assert False, fullname
 
 def get_tree(deps):
     '''
@@ -41,23 +48,32 @@ def get_tree(deps):
         short_name = name_parts[-1]
         parent = get_tree_node(root, name_parts[:-1])
         if is_node(end_root, end_name):
-            if is_module(start_name):
+            if is_module(start_root, start_name):
                 parent[short_name] = None
             else:
                 parent[short_name] = {}
     return root
+
+def get_file_linecount(filename):
+    with open(filename) as fp:
+        return len(fp.read().split('\n'))
 
 
 def get_module_node(long_name, short_name):
      '''
      Return a Node representing the given module
      '''
+     #from math import sqrt
+     #size = sqrt(get_file_linecount(long_name)) / 10
      return Node(
         long_name,
         label=short_name,
         shape="box",
         style="filled",
         color="gold1",
+        #height=size,
+        #width=size,
+        #fixedsize=True, # make label have no effect on node size
         fontname='Arial',
         fontsize=16,
     )
@@ -80,10 +96,11 @@ def get_package_node(long_name, short_name, rank):
         label=short_name,
         shape="plaintext",
         fontname='Impact',
-        fontcolor="white" if rank % 2 else "grey75",
+        fontcolor="grey75" if rank % 2 else "white",
         fontsize=24,
         width=0, height=0,
     )
+
 
 def get_package_cluster(long_name, short_name, subtree, rank):
     '''
@@ -96,7 +113,7 @@ def get_package_cluster(long_name, short_name, subtree, rank):
         style="filled",
         fontname='Arial',
         fontsize=20,
-        color="grey75" if rank % 2 else "white",
+        color="white" if rank % 2 else "grey75",
     )
     # pydot.Cluster has a bug. Workaround by putting the 'cluster_'
     # prefix on the inside of the quotes
@@ -140,7 +157,7 @@ def add_edges(graph, deps):
             # Filter out an edge which provokes the 'dot' executable's
             # longstanding and much-dreaded "trouble in init_rank" bug.
             if (start_name, end_name) in [
-                ('esperanto/middleware.py', 'esperanto/urls/api'),
+                #('esperanto/middleware.py', 'esperanto/urls/api'),
             ]:
                 sys.stderr.write('skipping %s %s\n' % (start_name, end_name))
                 continue
@@ -161,10 +178,11 @@ def main():
     graph = Dot(
         "Dependencies",
         graph_type='digraph',
-        compound=True,
-        remincross=True,
         rankdir='LR',
-        fontname='Arial',
+        label=sys.argv[1].split('.')[0],
+        fontname='Impact',
+        fontcolor="grey50",
+        fontsize=36,
     )
     add_nodes(graph, get_tree(deps))
     add_edges(graph, deps)
