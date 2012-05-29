@@ -49,7 +49,7 @@ def get_tree(deps):
 
 def get_module_node(long_name, short_name):
      '''
-     Return a Node representing the a module
+     Return a Node representing the given module
      '''
      return Node(
         long_name,
@@ -61,37 +61,15 @@ def get_module_node(long_name, short_name):
         fontsize=16,
     )
 
-def get_package_cluster(long_name, short_name, rank):
-    '''
-    Return a cluster representing a package
-    '''
-    cluster = Cluster(
-        '"%s"' % (long_name,),
-        label='""',
-        style="filled",
-        fontname='Arial',
-        fontsize=20,
-        color="grey75" if rank % 2 else "white",
-    )
-    # Workaround a bug in pydot.Cluster: Put the 'cluster_' prefix inside the
-    # quotes around the name
-    cluster.obj_dict['name'] = '"cluster_%s"' % (long_name,)
-
-    # Add a node within the cluster to act both as a cluster label
-    # and as an endpoint for edges which connect to the cluster
-    cluster.add_node(get_package_node(long_name, short_name, rank))
-
-    return cluster
-
 def get_package_node(long_name, short_name, rank):
     '''
-    Return a node which represents a package.
-    
+    Return a Node representing the given package.
+
     This node acts as an endpoint for edges connecting to a package. This
     sidesteps the complications (and bugs?) in dot when connecting nodes
     to subgraphs. Using a package node within each package cluster, we only
     need edges to connect nodes to other nodes.
-    
+
     This node also acts as a label for the containing cluster, so that
     edges connect to the package name, rather than to an invisible node within
     the package's cluster.
@@ -106,32 +84,56 @@ def get_package_node(long_name, short_name, rank):
         width=0, height=0,
     )
 
+def get_package_cluster(long_name, short_name, subtree, rank):
+    '''
+    Return a cluster representing a package, populated with all its
+    contained modules and packages.
+    '''
+    cluster = Cluster(
+        '"%s"' % (long_name,),
+        label='""',
+        style="filled",
+        fontname='Arial',
+        fontsize=20,
+        color="grey75" if rank % 2 else "white",
+    )
+    # pydot.Cluster has a bug. Workaround by putting the 'cluster_'
+    # prefix on the inside of the quotes
+    cluster.obj_dict['name'] = '"cluster_%s"' % (long_name,)
+
+    add_nodes(cluster, subtree, prefix=long_name, rank=rank+1)
+
+    # Add a node within the cluster to act both as a cluster label
+    # and as an endpoint for edges which connect to the cluster
+    cluster.add_node(get_package_node(long_name, short_name, rank))
+
+    return cluster
+
 def add_nodes(graph, tree, prefix='', rank=0):
     '''
-    Given a pydot.Dot instance, and a tree constructed by 'get_tree', we
-    create Nodes in 'graph' for each module listed in the tree, in nested
-    subgraphs for each package.
+    Given 'graph', a pydot.Dot instance, and a tree constructed by 'get_tree',
+    this function creates Nodes in 'graph' for each module listed in the tree,
+    within nested Clusters for each package.
     '''
     for key, value in tree.items():
         long_name = prefix + '/' + key if prefix else key
         if value is None:
             graph.add_node(get_module_node(long_name, key))
         else:
-            cluster = get_package_cluster(long_name, key, rank)
-            add_nodes(cluster, value, prefix=long_name, rank=rank+1)
-            graph.add_subgraph(cluster)
+            graph.add_subgraph(get_package_cluster(long_name, key, value, rank))
+
 
 def add_edges(graph, deps):
     '''
-    Given a pydot.Dot instance containing nodes for every module, nested in
-    subgraphs for each package, this function adds a pydot.Edge between the
-    nodes in the graph for each dependency.
+    Given 'graph', a pydot.Dot instance already populated with nodes and
+    clusters, and 'deps', a list of dependencies, this function adds
+    Edges to the graph for each dependency.
     '''
     for (start_root, start_name), (end_root, end_name) in deps:
         if end_root is not None and end_name is not None:
 
-            # Filter out one particular edge, which provokes Dot's longstanding
-            # and much-dreaded "trouble in init_rank" bug.
+            # Filter out an edge which provokes the 'dot' executable's
+            # longstanding and much-dreaded "trouble in init_rank" bug.
             if (start_name, end_name) in [
                 ('esperanto/middleware.py', 'esperanto/urls/api'),
             ]:
@@ -142,7 +144,7 @@ def add_edges(graph, deps):
 
         else:
             assert end_root is None and end_name is None
-    
+
 
 def main():
     # setup.py install/develop creates an executable that calls this function
