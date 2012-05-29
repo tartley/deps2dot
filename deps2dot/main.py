@@ -1,3 +1,4 @@
+from random import randint
 import sys
 
 from pydot import Cluster, Dot, Edge, Node
@@ -123,6 +124,10 @@ def add_nodes(graph, tree, prefix='', rank=0):
             graph.add_subgraph(get_package_cluster(long_name, key, value, rank))
 
 
+def get_color(start, end):
+    return '#%06x' % (hash(start) % 2**24,)
+
+
 def add_edges(graph, deps):
     '''
     Given 'graph', a pydot.Dot instance already populated with nodes and
@@ -140,7 +145,10 @@ def add_edges(graph, deps):
                 sys.stderr.write('skipping %s %s\n' % (start_name, end_name))
                 continue
 
-            graph.add_edge(Edge(start_name, end_name))
+            graph.add_edge(Edge(
+                start_name, end_name,
+                color=get_color(start_name, end_name),
+            ))
 
         else:
             assert end_root is None and end_name is None
